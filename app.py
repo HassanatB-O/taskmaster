@@ -4,7 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///test.db')
+uri = os.environ.get('DATABASE_URL', 'sqlite:///test.db')
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 db = SQLAlchemy(app)
 
 class Todo(db.Model):
@@ -60,9 +64,7 @@ def update(id):
         return render_template('update.html', task=task)
 
 if __name__ == "__main__":
-    # For local development, create SQLite tables if DATABASE_URL is not set
-    if 'DATABASE_URL' not in os.environ:
         # creates database
-        with app.app_context():
-            db.create_all()
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

@@ -10,6 +10,9 @@ if uri.startswith("postgres://"):
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
 db = SQLAlchemy(app)
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True) # id for the unique task
